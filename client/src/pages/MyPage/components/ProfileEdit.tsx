@@ -31,21 +31,19 @@ import useGetMe from '../../../common/utils/customHooks/useGetMe';
 import useDecryptToken from '../../../common/utils/customHooks/useDecryptToken';
 
 function ProfileEdit() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const decrypt = useDecryptToken();
+  const queryClient = useQueryClient();
   const [previewImage, setPreviewImage] = useState<string | null>(profileImage);
   const [profileImg, setProfileImg] = useState<File | null>(null);
   const [newDisplayName, setNewDisplayName] = useState<string>('');
-
-  console.log('Initial newDisplayName:', newDisplayName);
 
   const { data: userData } = useGetMe();
   console.log('userData', userData);
 
   const fetchUpdatedUserInfo = useCallback(async () => {
     try {
-      // queryClient.invalidateQueries('me');
+      queryClient.invalidateQueries('me');
       const encryptedAccessToken: string | null =
         localStorage.getItem(ACCESS_TOKEN) || '';
       const accessToken = decrypt(encryptedAccessToken);
@@ -55,7 +53,6 @@ function ProfileEdit() {
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            // Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJkaXNwbGF5TmFtZSI6IuuvvO2KuCIsImVtYWlsIjoia2V1bWhlMDExMEBnbWFpbC5jb20iLCJtZW1iZXJJZCI6MjgsInN1YiI6ImtldW1oZTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjg5NzQwOTU1LCJleHAiOjE2ODk3NDI3NTV9.0pjNsb7VIaknXE3ci2tTPCJ9FXc1fJg8lZz65vLjYAUbmAXCpWuot2DAiNQQ6eg07bGkIDAAyybSJkG-7INwqw`,
           },
         },
       );
@@ -84,8 +81,8 @@ function ProfileEdit() {
   };
 
   const onDisplayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewDisplayName(e.currentTarget.value);
-    console.log('수정 할 이름 :', e.currentTarget.value);
+    setNewDisplayName(e.target.value);
+    console.log('수정 할 이름 :', e.target.value);
   };
 
   useEffect(() => {
@@ -135,7 +132,6 @@ function ProfileEdit() {
       console.error('회원 정보 수정 중에 오류가 발생했습니다.', error);
     }
   };
-  console.log('이름수정', newDisplayName);
   return (
     <MyPageEdit>
       <ProfileEditWrapper>
@@ -155,12 +151,6 @@ function ProfileEdit() {
               accept="image/*"
               onChange={onUploadImage}
             />
-            <input
-              type="text"
-              placeholder="닉네임"
-              value={newDisplayName}
-              onChange={onDisplayNameChange}
-            />
           </ProfilerEdit>
           <UploadBtn onClick={onInputButtonClick}>파일 선택</UploadBtn>
         </ProfileSection>
@@ -171,7 +161,12 @@ function ProfileEdit() {
           </NameWrapper>
           <InputWrapper>
             <InputBox>
-              <input type="text" placeholder="닉네임" />
+              <input
+                type="text"
+                placeholder="닉네임"
+                value={newDisplayName}
+                onChange={onDisplayNameChange}
+              />
             </InputBox>
             {/* <TownBtn>내 동네 설정</TownBtn> */}
           </InputWrapper>
